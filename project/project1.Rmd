@@ -1,0 +1,161 @@
+---
+title: 'Project 1: Exploratory Data Analysis'
+author: "Elena Adams (era768)"
+date: '2020-10-18'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: no
+---
+
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50))
+```
+
+## My Project 
+
+My project will use data from quadrat surveys of plant cover on Mt St. Helens from 1995 to 2009. I will join a dataset with quadrat cover information (richness, diversity, etc) with a dataset containing plot descriptors (coordinates, succession type, etc), joined by Plot ID.
+
+```{R}
+library(tidyverse)
+```
+
+## Loading in the data
+
+```{r}
+structure <- read.csv("MSH_STRUCTURE_PLOT_YEAR.csv")
+descriptors <- read.csv("MSH_PLOT_DESCRIPTORS.csv")
+
+```
+
+## Fixing and Tidying
+
+```{R}
+structure %>% unite("PLOT_CODE", 2:3) -> structure_final
+descriptors_final <- descriptors %>% separate(PLOT_CODE,into = c("PLOT_NAME","PLOT_NUM
+BER"), sep=4, convert=T) %>% structure %>% unite("PLOT_CODE", 2:3) %>% 
+  separate(IMPACT_TYPE,into = c("IMPACT_TYPE_1","IMPACT_TYPE_2","IMPACT_TYPE_3"), sep=";", convert=T)
+structure_final <- structure_final %>% group_by(PLOT_CODE) %>% slice(1)
+structure_final %>% subset(PLOT_CODE!="BUCC_4") -> structure_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_10") -> descriptors_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_11") -> descriptors_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_12") -> descriptors_final
+descriptors_final[30, "PLOT_CODE"] <- "LAHR_4"
+descriptors_final[31, "PLOT_CODE"] <- "LAHR_5"
+descriptors_final[32, "PLOT_CODE"] <- "LAHR_6"
+descriptors_final[33, "PLOT_CODE"] <- "LAHR_7"
+descriptors_final[34, "PLOT_CODE"] <- "LAHR_8"
+
+```
+
+## Joining
+I performed a full join on the two datasets, because there weren’t too many columns/variables and Iwanted to preserve all of them. There are 24 variables in total, including the PLOT_CODE variable theyare joined on. I removed all rows except for the first year of observation in the plot structure dataset,
+because I wanted the number of rows to match up to the plot descriptors dataset and I wasn’t necessarily interested in looking at data scross years (as the descriptors dataset didn’t include measurements by year). There were 92 observations in the descriptors data, and 1743 observations in the structure data; 1654 were dropped from structure and 3 were dropped from descriptors to make an equal 89 observations in the joined dataset.
+
+```{r}
+full_join(descriptors_final,structure_final,by="PLOT_CODE") -> plots_joined
+plots_joined %>% glimpse()
+
+```
+
+## Summary Stats
+I found the mean, sd, var, min, max, and number of distinct numeric values across my data. I also explored a few pther variables of interest to me; ike the number of distinct entries for succession type, as well as the evenness and richness by plot ID when richness was greater than the mean. I created a
+joined table of these summary stats. I created a new variable for time span to easily see how long a plot had been observed.
+```{R}
+
+plots_joined %>% 
+  select(YEAR,RICHNESS,COVER_PERCENT,FREQUENCY,HPRIME,EVENNESS) %>% arrange(YEAR) %>% glimpse()
+
+plots_joined %>% mutate(TIME_SPAN=LAST_YEAR-FIRST_YEAR) -> plots_joined
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, mean, na.rm=T) %>% pivot_longer(1:9, names_to = "Variable", values_to = "Mean") -> dat_means
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, sd, na.rm=T)%>% pivot_longer(1:9, names_to = "Variable", values_to = "St. Dev.") -> dat_sds
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, var, na.rm=T)%>% pivot_longer(1:9, names_to = "Variable", values_to = "Variance") -> dat_var
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, min, na.rm=T)%>% pivot_longer(1:9, names_to = "Variable", values_to = "Min") -> dat_min
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, max, na.rm=T)%>% pivot_longer(1:9, names_to = "Variable", values_to = "Max") -> dat_max
+plots_joined %>% select(9:13,20:24) %>% 
+  summarize_if(is.numeric, n_distinct, na.rm=T)%>% 
+  pivot_longer(1:9, names_to = "Variable", values_to = 
+  "N_Distinct") -> dat_dist
+full_join(dat_means,dat_sds,dat_var,by="Variable") -> joined_stats
+full_join(joined_stats,dat_var,by="Variable") -> joined_stats2
+full_join(joined_stats2,dat_min,by="Variable") -> joined_stats3
+full_join(joined_stats3,dat_max,by="Variable") -> joined_stats4
+full_join(joined_stats4,dat_dist,by="Variable") -> joined_stats5
+joined_stats5
+
+plots_joined %>% summarize(n=n_distinct(SUCCESSION_TYPE)) %>% glimpse()
+plots_joined %>% select("PLOT_CODE","SUCCESSION_TYPE","RICHNESS","EVENNESS") %>% 
+  group_by(PLOT_CODE) %>% filter(RICHNESS>7.0898876)
+plots_joined %>% group_by(YEAR) %>% summarize_if(is.numeric, sd, na.rm=T) %>% arrange()
+plots_joined %>% group_by(YEAR) %>% summarize_if(is.numeric, var, na.rm=T) %>% arrange()
+plots_joined %>% group_by(YEAR) %>% summarize_if(is.numeric, n_distinct, na.rm=T) %>% arrange()
+
+plots_joined %>% group_by(PLOT_CODE) %>% summarize_if(is.numeric, mean, na.rm=T)
+plots_joined %>% group_by(PLOT_CODE) %>% summarize_if(is.numeric, min, na.rm=T)
+plots_joined %>% group_by(PLOT_CODE) %>% summarize_if(is.numeric, max, na.rm=T)
+
+```
+
+## Visualizing
+I created a heatmap of my numeric data to see which variables correlated the most. Species richness,evenness, and Shannon diversity index (H prime) correlated highly, which makes sense because they are all measures of diversity. The bar chart shows that by far, percent cover of vegetation is preserved the most by tephra and weak blast impact types, while percent cover is at a similar low range for other impact types. The boxplot compares species richness across different levels of succession. It was very interesting to see that disturbance habitat showed a much higher average species richness than primary and secondary succession habitats.
+```{R}
+plots_joined %>% select(9:13,20:24) %>% select_if(is.numeric)%>%cor%>%as.data.frame%>%
+rownames_to_column%>%pivot_longer(-1)%>%
+ggplot(aes(rowname,name,fill=value))+geom_tile()+
+geom_text(aes(label=round(value,2)))+
+xlab("")+ylab("")+coord_fixed()+theme(axis.text.x = element_text(angle = 45,hjust = 1
+))+labs(title = "Correlation Matrix")
+
+plots_joined %>% ggplot(aes(IMPACT_TYPE_1,COVER_PERCENT,color=IMPACT_TYPE_1)) +
+ geom_bar(stat="summary", fun=mean) +
+ labs(title = "Percent Cover by Impact Type", x="IMPACT TYPE", y="PERCENT COVER", color="IMPACT TYPE")+theme(axis.text.x = element_text(angle = 45,hjust = 1))
+
+plots_joined %>%
+ ggplot(aes(SUCCESSION_TYPE,RICHNESS,
+            color=SUCCESSION_TYPE))+geom_boxplot()+ 
+            labs(title = "Species Richness by Succession Type", x="Succession Type", color="Succession Type")
+```
+
+## PAM clustering
+
+```{R}
+library(cluster)
+pam_dat <- plots_joined %>% select(RICHNESS,COVER_PERCENT,HPRIME,EVENNESS,HEAT_LOAD)
+sil_width <- vector()
+for (i in 2:10) {
+ pam_fit <- pam(pam_dat, k = i)
+ sil_width[i] <- pam_fit$silinfo$avg.width
+}
+ggplot()+ geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks = 1:10
+)
+
+pam_final <-plots_joined %>% select(RICHNESS,COVER_PERCENT,HPRIME,EVENNESS,HEAT_LOAD)%>% scale %>% as.data.frame
+pam <- pam_final %>% pam(2)
+pam_final <- pam_final %>% mutate(cluster=as.factor(pam$clustering))
+```
+
+## Visualizing Pairwise Relationships
+Once again we can see that the most closely correlated variables are Shannon’s diversity index (H
+prime) and richness. Little else has as strong a correlation, although notably we can see that percent
+cover correlates somewhat with richness.
+```{R}
+library(plotly)
+library(GGally)
+ggpairs(pam_final, aes(color=cluster))
+```
+
+## Interpeting Average Silhouette Width 
+The structure found here is weak, with an average silhouette length of 0.44.
+```{R}
+plot(pam,which=2)
+```

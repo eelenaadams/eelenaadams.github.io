@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Elena Adams" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2: Modeling, Testing, and Predicting</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2: Modeling, Testing, and Predicting</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         November 25, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="my-project" class="section level2">
+<h2>My Project</h2>
+<p>My project will use data from quadrat surveys of plant cover on Mt St. Helens from 1995 to 2009. A joined dataset featuring quadrat cover information (richness, diversity, etc) with a dataset containing plot descriptors (coordinates, succession type, etc), was joined by Plot ID to be used for this project. The variables of interest here include: primary impact type, succession type (categorical); percent cover, richness, H prime (Shannon diversity index) and elevation (numeric); and multiple vs. single impact (binary). There are 89 observations total of each of these variables.</p>
+</div>
+<div id="loading-in-the-data" class="section level2">
+<h2>Loading in the data</h2>
+<pre class="r"><code>structure &lt;- read_csv(&quot;MSH_STRUCTURE_PLOT_YEAR.csv&quot;)
+descriptors &lt;- read_csv(&quot;MSH_PLOT_DESCRIPTORS.csv&quot;)</code></pre>
+</div>
+<div id="tidying-and-joining" class="section level2">
+<h2>Tidying and Joining</h2>
+<pre class="r"><code>structure %&gt;% unite(&quot;PLOT_CODE&quot;, 2:3) -&gt; structure_final
+
+descriptors &lt;- descriptors%&gt;%mutate(IMPACT_MULTI = case_when(
+    str_detect(IMPACT_TYPE, &quot;;&quot;) ~ TRUE,
+    TRUE ~ FALSE))
+
+descriptors_final &lt;- descriptors %&gt;% separate(PLOT_CODE,into = c(&quot;PLOT_NAME&quot;,&quot;PLOT_NUM
+BER&quot;), sep=4, convert=T) %&gt;% structure %&gt;% unite(&quot;PLOT_CODE&quot;, 2:3) %&gt;% 
+  separate(IMPACT_TYPE,into = c(&quot;IMPACT_TYPE_1&quot;,&quot;IMPACT_TYPE_2&quot;,&quot;IMPACT_TYPE_3&quot;), sep=&quot;;&quot;, convert=T)
+structure_final &lt;- structure_final %&gt;% group_by(PLOT_CODE) %&gt;% slice(1)
+structure_final %&gt;% subset(PLOT_CODE!=&quot;BUCC_4&quot;) -&gt; structure_final
+descriptors_final %&gt;% subset(PLOT_CODE!=&quot;PUPL_10&quot;) -&gt; descriptors_final
+descriptors_final %&gt;% subset(PLOT_CODE!=&quot;PUPL_11&quot;) -&gt; descriptors_final
+descriptors_final %&gt;% subset(PLOT_CODE!=&quot;PUPL_12&quot;) -&gt; descriptors_final
+descriptors_final[30, &quot;PLOT_CODE&quot;] &lt;- &quot;LAHR_4&quot;
+descriptors_final[31, &quot;PLOT_CODE&quot;] &lt;- &quot;LAHR_5&quot;
+descriptors_final[32, &quot;PLOT_CODE&quot;] &lt;- &quot;LAHR_6&quot;
+descriptors_final[33, &quot;PLOT_CODE&quot;] &lt;- &quot;LAHR_7&quot;
+descriptors_final[34, &quot;PLOT_CODE&quot;] &lt;- &quot;LAHR_8&quot;
+full_join(descriptors_final,structure_final,by=&quot;PLOT_CODE&quot;) -&gt; plots_joined</code></pre>
+</div>
+<div id="performing-manova" class="section level2">
+<h2>Performing MANOVA</h2>
+<p>Do the variables H prime, percent cover, and richness show a mean difference across succession type?</p>
+<p>H prime, percent cover, and richness showed signififcant differences in means across succession type (univariate ANOVAs; p-values&lt;.05). After completing 1 MANOVA, 3 ANOVAs, 9 t-tests (13 tests) the probability of a Type I error is about 0.49, and the adjusted p-value to be used is 0.004. After this adjustement, there is a significant difference in mean percent cover between primary and disturbance, as well as secondary and disturbance habitat types; there is also a significant difference in mean richness between primary and disturbance; and secondary and disturbance habitat types.</p>
+<p>The assumption of multivariate normality for MANOVA was violated for each numeric variable (Shapiro test; p-values all &lt;.05).</p>
+<pre class="r"><code>#Checking Assumptions 
+library(rstatix)
+
+group &lt;- plots_joined$SUCCESSION_TYPE 
+DVs &lt;- plots_joined %&gt;% select(HPRIME,COVER_PERCENT,RICHNESS)
+
+#Test multivariate normality for each group (ALL VIOLATED)
+sapply(split(DVs,group), mshapiro_test)</code></pre>
+<pre><code>##           Disturbance Primary     Secondary  
+## statistic 0.6668708   0.3892868   0.78086    
+## p.value   1.57977e-05 1.40833e-12 0.000192227</code></pre>
+<pre class="r"><code>#Performing test
+man1&lt;-manova(cbind(HPRIME,COVER_PERCENT,RICHNESS)~SUCCESSION_TYPE, data=plots_joined)
+summary(man1)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## SUCCESSION_TYPE 2 0.65582 13.824 6 170 9.048e-13 ***
+## Residuals 86
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(man1)</code></pre>
+<pre><code>## Response HPRIME :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## SUCCESSION_TYPE 2 5.074 2.53682 4.8693 0.009924 **
+## Residuals 86 44.805 0.52099
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response COVER_PERCENT :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## SUCCESSION_TYPE 2 7560.7 3780.3 72.631 &lt; 2.2e-16 ***
+## Residuals 86 4476.2 52.0
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response RICHNESS :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## SUCCESSION_TYPE 2 963.12 481.56 23.109 9.29e-09 ***
+## Residuals 86 1792.16 20.84
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>plots_joined%&gt;%group_by(SUCCESSION_TYPE)%&gt;%
+  summarize(mean(HPRIME),mean(COVER_PERCENT),mean(RICHNESS))</code></pre>
+<pre><code>## # A tibble: 3 x 4
+## SUCCESSION_TYPE `mean(HPRIME)` `mean(COVER_PERCENT)`
+`mean(RICHNESS)`
+## &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Disturbance 1.75 23.2 13.2
+## 2 Primary 1.17 0.833 5.30
+## 3 Secondary 1.19 1.64 5.35</code></pre>
+<pre class="r"><code>pairwise.t.test(plots_joined$HPRIME,plots_joined$SUCCESSION_TYPE, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>##
+## Pairwise comparisons using t tests with pooled SD
+##
+## data: plots_joined$HPRIME and
+plots_joined$SUCCESSION_TYPE
+##
+## Disturbance Primary
+## Primary 0.0037 -
+## Secondary 0.0125 0.9445
+##
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(plots_joined$COVER_PERCENT,plots_joined$SUCCESSION_TYPE, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>##
+## Pairwise comparisons using t tests with pooled SD
+##
+## data: plots_joined$COVER_PERCENT and
+plots_joined$SUCCESSION_TYPE
+##
+## Disturbance Primary
+## Primary &lt; 2e-16 -
+## Secondary 1.4e-15 0.66
+##
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(plots_joined$RICHNESS,plots_joined$SUCCESSION_TYPE, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>##
+## Pairwise comparisons using t tests with pooled SD
+##
+## data: plots_joined$RICHNESS and
+plots_joined$SUCCESSION_TYPE
+##
+## Disturbance Primary
+## Primary 6.1e-09 -
+## Secondary 2.3e-07 0.97
+##
+## P value adjustment method: none</code></pre>
+</div>
+<div id="performing-randomization-test-anova" class="section level2">
+<h2>Performing Randomization Test (ANOVA)</h2>
+<p>Because the assumptions of the MANOVA above were violated, I decided to run a randomized one way ANOVA to compare whether the previous results for richness across succession type were still significant.</p>
+<p>Ho: Mean richness for all succession types are equal</p>
+<p>Ha: Mean richness differs in at least one sucession type</p>
+<p>The p-value is 0 (far less than &lt;.05)for this randomized ANOVA; therefore, we can reject the null hypothesis that the mean richness is equal across all succession types.</p>
+<pre class="r"><code>summary(aov(RICHNESS~SUCCESSION_TYPE,data=plots_joined))</code></pre>
+<pre><code>## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## SUCCESSION_TYPE 2 963.1 481.6 23.11 9.29e-09 ***
+## Residuals 86 1792.2 20.8
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>obs_F &lt;- 23.11
+
+Fs&lt;-replicate(5000,{
+  new&lt;-plots_joined%&gt;%mutate(RICHNESS=sample(RICHNESS))
+  SSW&lt;- new%&gt;%group_by(SUCCESSION_TYPE)%&gt;%summarize(SSW=sum((RICHNESS-mean(RICHNESS))^2))%&gt;%summarize(sum(SSW))%&gt;%pull
+  SSB&lt;- new%&gt;%mutate(mean=mean(RICHNESS))%&gt;%group_by(SUCCESSION_TYPE)%&gt;%mutate(groupmean=mean(RICHNESS))%&gt;%
+    summarize(SSB=sum((mean-groupmean)^2))%&gt;%summarize(sum(SSB))%&gt;%pull
+  (SSB/2)/(SSW/86)
+})
+
+#null distribution plot with observed F-statistic
+
+hist(Fs, prob=T); abline(v = obs_F, col=&quot;red&quot;, add=T)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean(Fs&gt;obs_F)</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="builiding-a-linear-regression-model" class="section level2">
+<h2>Builiding a Linear Regression Model</h2>
+<p>Here I built a linear regression model predicting H prime (diversity index) from elevation and succession type. The coefficients can be interpreted as follows:</p>
+<p>Intercept: 1.585 is the predicted H prime for disturbance succession habitats of average elevation.</p>
+<p>Elevation_C: Controlling for succession type, for each one unit increase in elevation there is an average increase in H prime of 0.0019.</p>
+<p>Succession_TypePrimary: Controlling for elevation, H prime in the primary succession type group is 0.309 units lower than in the disturbance succession type group on average.</p>
+<p>Succession_TypeSecondary: Controlling for elevation, H prime in the secondary type group is 0.379 units lower than in the disturbance succession type group on average.</p>
+<p>Elevation_C:Succession_TypePrimary: The slope for elevation on H prime is 0.00029 lower for primary succession type habitats compared to disturbance type habitats.</p>
+<p>Elevation_C:Succession_TypeSecondary: The slope for elevation on H prime is 0.0024 lower for secondary succession type habitats compared to disturbance type habitats.</p>
+<p>The assumption of homoskedasticity was violated (BP test p value &lt;.05); the normality assumption may be violated as well, as the QQ plot skews significantly at either end. The linearity assumption seems to be met.</p>
+<p>Robust standard errors were applied, and the significance of two coefficients changed. Elevation_c and Succession_TypeSecondary are now significant (p-value 0.0093 and p-value 0.048).</p>
+<p>The model explains 8.8% of the variation in H prime, given from an adjusted R-squared value of 0.08762.</p>
+<pre class="r"><code>plots_joined$ELEVATION_C &lt;- plots_joined$ELEVATION - mean(plots_joined$ELEVATION)
+
+linreg &lt;-lm(HPRIME~ELEVATION_C*SUCCESSION_TYPE, data=plots_joined) 
+summary(linreg)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = HPRIME ~ ELEVATION_C * SUCCESSION_TYPE,
+data = plots_joined)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -1.3635 -0.5684 0.0652 0.5274 1.5532
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1.5847165 0.1966201 8.060 4.95e-12 ***
+## ELEVATION_C 0.0019377 0.0013293 1.458 0.149
+## SUCCESSION_TYPEPrimary -0.3087291 0.2399605 -1.287 0.202
+## SUCCESSION_TYPESecondary -0.3738601 0.2554273 -1.464
+0.147
+## ELEVATION_C:SUCCESSION_TYPEPrimary -0.0002944 0.0019340
+-0.152 0.879
+## ELEVATION_C:SUCCESSION_TYPESecondary -0.0024206
+0.0018327 -1.321 0.190
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 0.7191 on 83 degrees of freedom
+## Multiple R-squared: 0.1395, Adjusted R-squared: 0.08762
+## F-statistic: 2.69 on 5 and 83 DF, p-value: 0.0265</code></pre>
+<pre class="r"><code>plots_joined %&gt;% ggplot(aes(ELEVATION_C,HPRIME,color=SUCCESSION_TYPE))+
+  geom_point()+geom_smooth(method=&quot;lm&quot;, se=F)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Checking Assumptions (linearity, homoskedasticity, normality)
+resids&lt;-linreg$residuals
+fitvals&lt;-linreg$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color=&#39;red&#39;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mfrow=c(1,2)); hist(resids); qqnorm(resids); qqline(resids, col=&#39;red&#39;)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-3.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(sandwich); library(lmtest)
+bptest(linreg)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  linreg
+## BP = 21.975, df = 5, p-value = 0.0005293</code></pre>
+<pre class="r"><code>#Adding robust standard errors
+coeftest(linreg, vcov = vcovHC(linreg))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 1.58471654 0.11894042 13.3236 &lt; 2.2e-16 ***
+## ELEVATION_C 0.00193767 0.00072729 2.6642 0.009269 **
+## SUCCESSION_TYPEPrimary -0.30872911 0.19224171 -1.6059
+0.112085
+## SUCCESSION_TYPESecondary -0.37386012 0.18659206 -2.0036
+0.048373 *
+## ELEVATION_C:SUCCESSION_TYPEPrimary -0.00029443
+0.00174902 -0.1683 0.866726
+## ELEVATION_C:SUCCESSION_TYPESecondary -0.00242061
+0.00163396 -1.4814 0.142276
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+</div>
+<div id="linear-regression-model-with-bootstrapped-ses" class="section level2">
+<h2>Linear Regression Model with Bootstrapped SEs</h2>
+<p>Overall, the standard errors of the original, robust SEs, and the bootstrapped SEs are fairly similar; for example the intercept SE was 0.197, 0.119, and 0.187 respectively, with the robust SEs being the most different overall.</p>
+<pre class="r"><code>#Bootstrapping using residuals 
+linreg &lt;-lm(HPRIME~ELEVATION_C*SUCCESSION_TYPE, data=plots_joined)
+  resids&lt;-linreg$residuals 
+  fitted&lt;-linreg$fitted.values 
+   
+  resid_resamp&lt;-replicate(5000,{
+    new_resids&lt;-sample(resids,replace=TRUE) 
+    plots_joined$new_y&lt;-fitted+new_resids 
+    linreg2&lt;-lm(new_y~ELEVATION_C*SUCCESSION_TYPE,data=plots_joined)
+    coef(linreg2) #save coefficient estimates (b0, b1, etc)
+}) 
+  
+## Estimated SEs
+resid_resamp%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>## (Intercept) ELEVATION_C SUCCESSION_TYPEPrimary
+SUCCESSION_TYPESecondary
+## 1 0.1904413 0.001281507 0.228046 0.2451346
+## ELEVATION_C:SUCCESSION_TYPEPrimary
+ELEVATION_C:SUCCESSION_TYPESecondary
+## 1 0.001843101 0.001762041</code></pre>
+</div>
+<div id="fitting-a-logistic-regression-model-w-binary-variable" class="section level2">
+<h2>Fitting a Logistic Regression Model w/ Binary Variable</h2>
+<p>Coefficient interpretations:</p>
+<p>Intercept: Odds of having multiple impact types for disturbance succession type and elevation and richness of 0 is 70.09.</p>
+<p>Elevation: Controlling for richness and succession type, for every one additional meter of elevation, odds of having multiple impact types deacrease by a factor of -0.005 (p-value=0.037).</p>
+<p>Richness: Controlling for elevation and succession type, for every one unit increase in richness, odds of having multiple impact types increase by a factor of 0.150 (p-value=0.009).</p>
+<p>Succession_TypePrimary: Controlling for elevation and richness, odds of having multiple impact types for primary succession habitats is 1.84 times odds of having multiple impact types for disturbance habitats (p-value=0.038)</p>
+<p>Succession_TypeSecondary: Controlling for elevation and richness, odds of having multiple impact types for secondary succession habitats is 2.31 times odds of having multiple impact types for disturbance habitats (p-value=0.0105).</p>
+<p>The accuracy is 0.764, sensitivity is 0.516, specificity is 0.897, precision is 0.727, and AUC is 0.742. Most of these measures are good, with the excpetion of sensitivity; it appears the model isn't very good at detecting multiple impact type in plots that have multiple. The AUC is the probability that a randomly selected plot with multiple impact types has a higher predicted probability than a randomly selected plot with only one impact type; therefore our AUC shows our model is doing a fair/decent job at predicting whether a plot has multiple impact types.</p>
+<pre class="r"><code>logreg&lt;-glm(IMPACT_MULTI~ELEVATION+RICHNESS+
+              SUCCESSION_TYPE,data=plots_joined,family=binomial(link=&quot;logit&quot;))
+coeftest(logreg)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) 4.2498003 3.7761529 1.1254 0.260406
+## ELEVATION -0.0053856 0.0025807 -2.0868 0.036902 *
+## RICHNESS 0.1497197 0.0572169 2.6167 0.008878 **
+## SUCCESSION_TYPEPrimary 1.8445751 0.8874810 2.0784
+0.037669 *
+## SUCCESSION_TYPESecondary 2.3115575 0.9032394 2.5592
+0.010492 *
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(logreg))</code></pre>
+<pre><code>## (Intercept) ELEVATION RICHNESS SUCCESSION_TYPEPrimary
+## 70.0914169 0.9946289 1.1615086 6.3254115
+## SUCCESSION_TYPESecondary
+## 10.0901275</code></pre>
+<pre class="r"><code>#Confusion matrix 
+prob&lt;-predict(logreg,type=&quot;response&quot;)
+pred&lt;-ifelse(prob&gt;.5,1,0)
+table(truth=plots_joined$IMPACT_MULTI,  prediction=pred)%&gt;%addmargins</code></pre>
+<pre><code>##        prediction
+## truth    0  1 Sum
+##   FALSE 52  6  58
+##   TRUE  15 16  31
+##   Sum   67 22  89</code></pre>
+<pre class="r"><code>#Accuracy, Sensitivity, Specificity, Precision
+(52+16)/89 ; 16/31 ; 52/58 ; 16/22</code></pre>
+<pre><code>## [1] 0.7640449</code></pre>
+<pre><code>## [1] 0.516129</code></pre>
+<pre><code>## [1] 0.8965517</code></pre>
+<pre><code>## [1] 0.7272727</code></pre>
+<pre class="r"><code>#Density plot
+plots_joined$logit&lt;-predict(logreg,type=&quot;link&quot;)
+
+plots_joined%&gt;%ggplot()+geom_density(aes(logit,color=IMPACT_MULTI,fill=IMPACT_MULTI), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab(&quot;logit (log-odds)&quot;)+
+  geom_rug(aes(logit,color=IMPACT_MULTI))</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-7-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#ROC Curve
+library(plotROC)
+ROCplot&lt;-ggplot(plots_joined)+geom_roc(aes(d=IMPACT_MULTI,m=prob), n.cuts=0)+
+geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-7-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.7424917</code></pre>
+</div>
+<div id="logistic-regression-model-w-all-variables" class="section level2">
+<h2>Logistic Regression Model w/ All Variables</h2>
+<p>For the model predicting multiple vs single impact types with all other variables (columns like year, plot ID, etc. were removed for convenience) the diagnostics are as follows: accuracy is 0.91, sensitivity is 0.839, specificity is 0.948, precision is 0.90, and AUC is 0.96; all are indicative of good predictive power.</p>
+<pre class="r"><code>plotdata &lt;- plots_joined %&gt;% select(EVENNESS,FREQUENCY,HPRIME,COVER_PERCENT,RICHNESS,SUCCESSION_TYPE,IMPACT_MULTI,POT_RAD,HEAT_LOAD)
+
+logreg2&lt;-glm(IMPACT_MULTI~.,data=plotdata,family=&quot;binomial&quot;)
+coef(logreg2)</code></pre>
+<pre><code>## (Intercept) EVENNESS FREQUENCY HPRIME
+## -37.98424988 -8.54875329 -0.04414733 5.98616431
+## COVER_PERCENT RICHNESS SUCCESSION_TYPEPrimary
+SUCCESSION_TYPESecondary
+## 0.12953737 -0.54816767 5.97368304 5.01180488
+## POT_RAD HEAT_LOAD
+## 110.61212083 -70.94216197</code></pre>
+<pre class="r"><code>probs&lt;-predict(logreg2,type=&quot;response&quot;)
+
+#Class diag function
+class_diag &lt;- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  n &lt;- length(TPR)
+  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+#Class diagnostics
+class_diag(probs,plotdata$IMPACT_MULTI)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## TRUE 0.9101124 0.8387097 0.9482759 0.8965517 0.8666667
+0.9593993</code></pre>
+</div>
+<div id="fold-cv-on-regression-model" class="section level2">
+<h2>10 Fold CV on Regression Model</h2>
+<p>In this 10 fold CV of the above model, the diagnostics are as follows: accuracy is 0.854, sensitivity is 0.861, specificity is 0.885, precision is 0.795, and AUC is 0.93; all except sensitivity are less than the values from the original model above, indiciating the original model is overfitted.</p>
+<pre class="r"><code>k=10 
+
+data&lt;-plotdata[sample(nrow(plotdata)),]
+folds&lt;-cut(seq(1:nrow(plotdata)),breaks=k,labels=F)
+
+diags&lt;-NULL
+for(i in 1:k){
+  train&lt;-data[folds!=i,] 
+  test&lt;-data[folds==i,]
+  truth&lt;-test$IMPACT_MULTI
+  
+  cv.fit&lt;-glm(IMPACT_MULTI~.,data=train,family=&quot;binomial&quot;)
+  cv.probs&lt;-predict(cv.fit,newdata = test,type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(cv.probs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec  ppv        f1       auc
+## 1 0.8083333 0.7416667 0.8461905 0.75 0.7166667 0.8999206</code></pre>
+</div>
+<div id="performing-lasso" class="section level2">
+<h2>Performing LASSO</h2>
+<p>The variables retained by LASSO here are evenness, H prime, percent cover, primary succession type, secondary succession type, potential radiation, and heat load. These variables generally make sense in predicting whether a plot has multiple or single impact types (for instance, diversity measures like H prime and evenness would likely co-vary with different levels of impact); however, I am a bit surprised that heat load and potential radiation are retained, as on the surface I can't see them having much predictive power in whether a site has multiple or single impact types.</p>
+<pre class="r"><code>library(glmnet)
+y&lt;-as.matrix(plotdata$IMPACT_MULTI) 
+x&lt;-model.matrix(IMPACT_MULTI~.,data=plotdata)[,-1] 
+
+glm(y~x,family=binomial)</code></pre>
+<pre><code>##
+## Call: glm(formula = y ~ x, family = binomial)
+##
+## Coefficients:
+## (Intercept) xEVENNESS xFREQUENCY
+## -37.98425 -8.54875 -0.04415
+## xHPRIME xCOVER_PERCENT xRICHNESS
+## 5.98616 0.12954 -0.54817
+## xSUCCESSION_TYPEPrimary xSUCCESSION_TYPESecondary
+xPOT_RAD
+## 5.97368 5.01180 110.61212
+## xHEAT_LOAD
+## -70.94216
+##
+## Degrees of Freedom: 88 Total (i.e. Null); 79 Residual
+## Null Deviance: 115.1
+## Residual Deviance: 44 AIC: 64</code></pre>
+<pre class="r"><code>cv &lt;- cv.glmnet(x,y, family=&quot;binomial&quot;)
+
+{plot(cv$glmnet.fit, &quot;lambda&quot;, label=TRUE); abline(v = log(cv$lambda.1se)); abline(v = log(cv$lambda.min),lty=2)}</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cv&lt;-cv.glmnet(x,y,family=&quot;binomial&quot;)
+lasso&lt;-glmnet(x,y,family=&quot;binomial&quot;,lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                   s0
+## (Intercept)              -11.2832352
+## EVENNESS                  -0.3672600
+## FREQUENCY                  .        
+## HPRIME                     0.3322982
+## COVER_PERCENT             -0.0492283
+## RICHNESS                   .        
+## SUCCESSION_TYPEPrimary     0.3556038
+## SUCCESSION_TYPESecondary   .        
+## POT_RAD                   28.9711091
+## HEAT_LOAD                -16.6730954</code></pre>
+</div>
+<div id="fold-cv-on-lasso" class="section level2">
+<h2>10 Fold CV on LASSO</h2>
+<p>In this 10 fold CV of the LASSO-selected model, the diagnostics are as follows: accuracy is 0.86, sensitivity is 0.815, specificity is 0.894, precision is NA, and AUC is 0.917. The out of sample AUC here of 0.917 is actually less than the out of sample AUC of the original regression (0.93).</p>
+<pre class="r"><code>k=10
+
+data1 &lt;- plotdata %&gt;% sample_frac 
+folds1 &lt;- ntile(1:nrow(data1),n=10) 
+
+diags1&lt;-NULL
+for(i in 1:k){
+  train1 &lt;- data1[folds1!=i,]
+  test1 &lt;- data1[folds1==i,] 
+  truth1 &lt;- test1$IMPACT_MULTI 
+  
+  cv.fit2 &lt;- glm(IMPACT_MULTI~EVENNESS+HPRIME+COVER_PERCENT+SUCCESSION_TYPE+POT_RAD+HEAT_LOAD, 
+             data=train1, family=&quot;binomial&quot;)
+  cv.probs2 &lt;- predict(cv.fit2, newdata=test1, type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(cv.probs2,truth1))
+}
+
+diags%&gt;%summarize_all(mean)</code></pre>
+<pre><code>## acc sens spec ppv f1 auc
+## 1 0.81875 0.7583333 0.8689286 0.7791667 0.7400397
+0.9017659</code></pre>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

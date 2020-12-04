@@ -1,0 +1,372 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Elena Adams (era768)"
+date: '2020-11-25'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+## My Project 
+
+My project will use data from quadrat surveys of plant cover on Mt St. Helens from 1995 to 2009. A joined dataset featuring quadrat cover information (richness, diversity, etc) with a dataset containing plot descriptors (coordinates, succession type, etc), was joined by Plot ID to be used for this project. The variables of interest here include: primary impact type, succession type (categorical); percent cover, richness, H prime (Shannon diversity index) and elevation (numeric); and multiple vs. single impact (binary). There are 89 observations total of each of these variables.
+
+## Loading in the data
+
+```{r}
+structure <- read_csv("MSH_STRUCTURE_PLOT_YEAR.csv")
+descriptors <- read_csv("MSH_PLOT_DESCRIPTORS.csv")
+
+```
+
+## Tidying and Joining 
+
+```{R}
+structure %>% unite("PLOT_CODE", 2:3) -> structure_final
+
+descriptors <- descriptors%>%mutate(IMPACT_MULTI = case_when(
+    str_detect(IMPACT_TYPE, ";") ~ TRUE,
+    TRUE ~ FALSE))
+
+descriptors_final <- descriptors %>% separate(PLOT_CODE,into = c("PLOT_NAME","PLOT_NUM
+BER"), sep=4, convert=T) %>% structure %>% unite("PLOT_CODE", 2:3) %>% 
+  separate(IMPACT_TYPE,into = c("IMPACT_TYPE_1","IMPACT_TYPE_2","IMPACT_TYPE_3"), sep=";", convert=T)
+structure_final <- structure_final %>% group_by(PLOT_CODE) %>% slice(1)
+structure_final %>% subset(PLOT_CODE!="BUCC_4") -> structure_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_10") -> descriptors_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_11") -> descriptors_final
+descriptors_final %>% subset(PLOT_CODE!="PUPL_12") -> descriptors_final
+descriptors_final[30, "PLOT_CODE"] <- "LAHR_4"
+descriptors_final[31, "PLOT_CODE"] <- "LAHR_5"
+descriptors_final[32, "PLOT_CODE"] <- "LAHR_6"
+descriptors_final[33, "PLOT_CODE"] <- "LAHR_7"
+descriptors_final[34, "PLOT_CODE"] <- "LAHR_8"
+full_join(descriptors_final,structure_final,by="PLOT_CODE") -> plots_joined
+
+```
+
+## Performing MANOVA 
+
+Do the variables H prime, percent cover, and richness show a mean difference across succession type? 
+
+H prime, percent cover, and richness showed signififcant differences in means across succession type (univariate ANOVAs; p-values<.05). After completing 1 MANOVA, 3 ANOVAs, 9 t-tests (13 tests) the probability of a Type I error is about 0.49, and the adjusted p-value to be used is 0.004. After this adjustement, there is a significant difference in mean percent cover between primary and disturbance, as well as secondary and disturbance habitat types; there is also a significant difference in mean richness between primary and disturbance; and secondary and disturbance habitat types.
+
+The assumption of multivariate normality for MANOVA was violated for each numeric variable (Shapiro test; p-values all <.05).
+
+```{r}
+#Checking Assumptions 
+library(rstatix)
+
+group <- plots_joined$SUCCESSION_TYPE 
+DVs <- plots_joined %>% select(HPRIME,COVER_PERCENT,RICHNESS)
+
+#Test multivariate normality for each group (ALL VIOLATED)
+sapply(split(DVs,group), mshapiro_test)
+
+#Performing test
+man1<-manova(cbind(HPRIME,COVER_PERCENT,RICHNESS)~SUCCESSION_TYPE, data=plots_joined)
+summary(man1)
+
+summary.aov(man1)
+
+plots_joined%>%group_by(SUCCESSION_TYPE)%>%
+  summarize(mean(HPRIME),mean(COVER_PERCENT),mean(RICHNESS))
+pairwise.t.test(plots_joined$HPRIME,plots_joined$SUCCESSION_TYPE, p.adj="none")
+pairwise.t.test(plots_joined$COVER_PERCENT,plots_joined$SUCCESSION_TYPE, p.adj="none")
+pairwise.t.test(plots_joined$RICHNESS,plots_joined$SUCCESSION_TYPE, p.adj="none")
+
+```
+
+
+## Performing Randomization Test (ANOVA) 
+
+Because the assumptions of the MANOVA above were violated, I decided to run a randomized one way ANOVA to compare whether the previous results for richness across succession type were still significant. 
+
+Ho: Mean richness for all succession types are equal
+
+Ha: Mean richness differs in at least one sucession type
+
+The p-value is 0 (far less than <.05)for this randomized ANOVA; therefore, we can reject the null hypothesis that the mean richness is equal across all succession types.
+
+```{r}
+summary(aov(RICHNESS~SUCCESSION_TYPE,data=plots_joined))
+
+obs_F <- 23.11
+
+Fs<-replicate(5000,{
+  new<-plots_joined%>%mutate(RICHNESS=sample(RICHNESS))
+  SSW<- new%>%group_by(SUCCESSION_TYPE)%>%summarize(SSW=sum((RICHNESS-mean(RICHNESS))^2))%>%summarize(sum(SSW))%>%pull
+  SSB<- new%>%mutate(mean=mean(RICHNESS))%>%group_by(SUCCESSION_TYPE)%>%mutate(groupmean=mean(RICHNESS))%>%
+    summarize(SSB=sum((mean-groupmean)^2))%>%summarize(sum(SSB))%>%pull
+  (SSB/2)/(SSW/86)
+})
+
+#null distribution plot with observed F-statistic
+
+hist(Fs, prob=T); abline(v = obs_F, col="red", add=T)
+mean(Fs>obs_F)
+
+```
+
+
+## Builiding a Linear Regression Model
+
+Here I built a linear regression model predicting H prime (diversity index) from elevation and succession type. The coefficients can be interpreted as follows: 
+
+Intercept: 1.585 is the predicted H prime for disturbance succession habitats of average elevation.
+
+Elevation_C: Controlling for succession type, for each one unit increase in elevation there is an average increase in H prime of 0.0019.
+
+Succession_TypePrimary: Controlling for elevation, H prime in the primary succession type group is 0.309 units lower than in the disturbance succession type group on average.
+
+Succession_TypeSecondary: Controlling for elevation, H prime in the secondary type group is 0.379 units
+lower than in the disturbance succession type group on average.
+
+Elevation_C:Succession_TypePrimary: The slope for elevation on H prime is 0.00029 lower for primary succession type habitats compared to disturbance type habitats.
+
+Elevation_C:Succession_TypeSecondary: The slope for elevation on H prime is 0.0024 lower for secondary succession type habitats compared to disturbance type habitats.
+
+The assumption of homoskedasticity was violated (BP test p value <.05); the normality assumption may be violated as well, as the QQ plot skews significantly at either end. The linearity assumption seems to be met. 
+
+Robust standard errors were applied, and the significance of two coefficients changed. Elevation_c and Succession_TypeSecondary are now significant (p-value 0.0093 and p-value 0.048).
+
+The model explains 8.8% of the variation in H prime, given from an adjusted R-squared value of 0.08762.
+
+```{r}
+plots_joined$ELEVATION_C <- plots_joined$ELEVATION - mean(plots_joined$ELEVATION)
+
+linreg <-lm(HPRIME~ELEVATION_C*SUCCESSION_TYPE, data=plots_joined) 
+summary(linreg)
+
+plots_joined %>% ggplot(aes(ELEVATION_C,HPRIME,color=SUCCESSION_TYPE))+
+  geom_point()+geom_smooth(method="lm", se=F)
+
+#Checking Assumptions (linearity, homoskedasticity, normality)
+resids<-linreg$residuals
+fitvals<-linreg$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red')
+par(mfrow=c(1,2)); hist(resids); qqnorm(resids); qqline(resids, col='red')
+
+library(sandwich); library(lmtest)
+bptest(linreg)
+
+#Adding robust standard errors
+coeftest(linreg, vcov = vcovHC(linreg))
+
+```
+
+
+## Linear Regression Model with Bootstrapped SEs
+
+Overall, the standard errors of the original, robust SEs, and the bootstrapped SEs are fairly similar; for example the intercept SE was 0.197, 0.119, and 0.187 respectively, with the robust SEs being the most different overall. 
+
+```{r}
+
+#Bootstrapping using residuals 
+linreg <-lm(HPRIME~ELEVATION_C*SUCCESSION_TYPE, data=plots_joined)
+  resids<-linreg$residuals 
+  fitted<-linreg$fitted.values 
+   
+  resid_resamp<-replicate(5000,{
+    new_resids<-sample(resids,replace=TRUE) 
+    plots_joined$new_y<-fitted+new_resids 
+    linreg2<-lm(new_y~ELEVATION_C*SUCCESSION_TYPE,data=plots_joined)
+    coef(linreg2) #save coefficient estimates (b0, b1, etc)
+}) 
+  
+## Estimated SEs
+resid_resamp%>%t%>%as.data.frame%>%summarize_all(sd)
+
+```
+
+
+## Fitting a Logistic Regression Model w/ Binary Variable
+
+Coefficient interpretations: 
+
+Intercept: Odds of having multiple impact types for disturbance succession type and elevation and richness of 0 is 70.09.
+
+Elevation: Controlling for richness and succession type, for every one additional meter of elevation, odds of having multiple impact types deacrease by a factor of  -0.005 (p-value=0.037).
+
+Richness: Controlling for elevation and succession type, for every one unit increase in richness, odds of having multiple impact types increase by a factor of 0.150 (p-value=0.009).
+
+Succession_TypePrimary: Controlling for elevation and richness, odds of having multiple impact types for primary succession habitats is 1.84 times odds of having multiple impact types for disturbance habitats (p-value=0.038)
+
+Succession_TypeSecondary: Controlling for elevation and richness, odds of having multiple impact types for secondary succession habitats is 2.31 times odds of having multiple impact types for disturbance habitats (p-value=0.0105).
+
+The accuracy is 0.764, sensitivity is 0.516, specificity is 0.897, precision is 0.727, and AUC is 0.742. Most of these measures are good, with the excpetion of sensitivity; it appears the model isn't very good at detecting multiple impact type in plots that have multiple. The AUC is the probability that a randomly selected plot with multiple impact types has a higher predicted probability than a randomly selected plot with only one impact type; therefore our AUC shows our model is doing a fair/decent job at predicting whether a plot has multiple impact types.
+
+```{r}
+logreg<-glm(IMPACT_MULTI~ELEVATION+RICHNESS+
+              SUCCESSION_TYPE,data=plots_joined,family=binomial(link="logit"))
+coeftest(logreg)
+exp(coef(logreg))
+
+#Confusion matrix 
+prob<-predict(logreg,type="response")
+pred<-ifelse(prob>.5,1,0)
+table(truth=plots_joined$IMPACT_MULTI,  prediction=pred)%>%addmargins
+
+#Accuracy, Sensitivity, Specificity, Precision
+(52+16)/89 ; 16/31 ; 52/58 ; 16/22
+
+#Density plot
+plots_joined$logit<-predict(logreg,type="link")
+
+plots_joined%>%ggplot()+geom_density(aes(logit,color=IMPACT_MULTI,fill=IMPACT_MULTI), alpha=.4)+
+  theme(legend.position=c(.85,.85))+geom_vline(xintercept=0)+xlab("logit (log-odds)")+
+  geom_rug(aes(logit,color=IMPACT_MULTI))
+
+#ROC Curve
+library(plotROC)
+ROCplot<-ggplot(plots_joined)+geom_roc(aes(d=IMPACT_MULTI,m=prob), n.cuts=0)+
+geom_segment(aes(x=0,xend=1,y=0,yend=1),lty=2)
+ROCplot
+
+calc_auc(ROCplot)
+
+```
+
+
+## Logistic Regression Model w/ All Variables 
+
+For the model predicting multiple vs single impact types with all other variables (columns like year, plot ID, etc. were removed for convenience) the diagnostics are as follows: accuracy is 0.91, sensitivity is 0.839, specificity is 0.948, precision is 0.90, and AUC is 0.96; all are indicative of good predictive power.
+
+```{r}
+plotdata <- plots_joined %>% select(EVENNESS,FREQUENCY,HPRIME,COVER_PERCENT,RICHNESS,SUCCESSION_TYPE,IMPACT_MULTI,POT_RAD,HEAT_LOAD)
+
+logreg2<-glm(IMPACT_MULTI~.,data=plotdata,family="binomial")
+coef(logreg2)
+
+probs<-predict(logreg2,type="response")
+
+#Class diag function
+class_diag <- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+#Class diagnostics
+class_diag(probs,plotdata$IMPACT_MULTI)
+
+```
+
+## 10 Fold CV on Regression Model
+
+In this 10 fold CV of the above model, the diagnostics are as follows: accuracy is 0.854, sensitivity is 0.861, specificity is 0.885, precision is 0.795, and AUC is 0.93; all except sensitivity are less than the values from the original model above, indiciating the original model is overfitted.
+
+```{r}
+
+k=10 
+
+data<-plotdata[sample(nrow(plotdata)),]
+folds<-cut(seq(1:nrow(plotdata)),breaks=k,labels=F)
+
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  truth<-test$IMPACT_MULTI
+  
+  cv.fit<-glm(IMPACT_MULTI~.,data=train,family="binomial")
+  cv.probs<-predict(cv.fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(cv.probs,truth))
+}
+
+summarize_all(diags,mean)
+```
+
+
+## Performing LASSO 
+
+The variables retained by LASSO here are evenness, H prime, percent cover, primary succession type, secondary succession type, potential radiation, and heat load. These variables generally make sense in predicting whether a plot has multiple or single impact types (for instance, diversity measures like H prime and evenness would likely co-vary with different levels of impact); however, I am a bit surprised that heat load and potential radiation are retained, as on the surface I can't see them having much predictive power in whether a site has multiple or single impact types.
+
+```{r}
+library(glmnet)
+y<-as.matrix(plotdata$IMPACT_MULTI) 
+x<-model.matrix(IMPACT_MULTI~.,data=plotdata)[,-1] 
+
+glm(y~x,family=binomial)
+
+cv <- cv.glmnet(x,y, family="binomial")
+
+{plot(cv$glmnet.fit, "lambda", label=TRUE); abline(v = log(cv$lambda.1se)); abline(v = log(cv$lambda.min),lty=2)}
+
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+```
+
+
+## 10 Fold CV on LASSO
+
+In this 10 fold CV of the LASSO-selected model, the diagnostics are as follows: accuracy is 0.86, sensitivity is 0.815, specificity is 0.894, precision is NA, and AUC is 0.917. The out of sample AUC here of 0.917 is actually less than the out of sample AUC of the original regression (0.93). 
+
+```{r}
+k=10
+
+data1 <- plotdata %>% sample_frac 
+folds1 <- ntile(1:nrow(data1),n=10) 
+
+diags1<-NULL
+for(i in 1:k){
+  train1 <- data1[folds1!=i,]
+  test1 <- data1[folds1==i,] 
+  truth1 <- test1$IMPACT_MULTI 
+  
+  cv.fit2 <- glm(IMPACT_MULTI~EVENNESS+HPRIME+COVER_PERCENT+SUCCESSION_TYPE+POT_RAD+HEAT_LOAD, 
+             data=train1, family="binomial")
+  cv.probs2 <- predict(cv.fit2, newdata=test1, type="response")
+  
+  diags<-rbind(diags,class_diag(cv.probs2,truth1))
+}
+
+diags%>%summarize_all(mean)
+
+```
+
