@@ -1,0 +1,45 @@
+---
+title: Python Stuff!
+author: 'Elena '
+date: '2020-12-10'
+slug: python-stuff
+categories: []
+tags: []
+description: ''
+---
+
+##So.. Coding, Huh.
+
+Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today's technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It's not so scary; here's a simple Python code chunk:
+
+```{python}
+print("When the robots take over, we'll have to learn their language!")
+```
+
+R and Python are two very common coding languages for data sciences. Some prefer one or the other, but the truth is they both have different strengths and weaknesses; and both are a useful tool in your statistics and data sciences toolbox. 
+
+
+Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually "communicate" with each other through a feature called Reticulate... here, I'll show you!
+
+
+## Reticulate
+
+
+```{r}
+#R code chunk
+
+library(reticulate)
+quakes<- quakes
+
+```
+
+```{python}
+#Python code chunk
+
+r.quakes.head()
+r.quakes.describe()
+
+```
+
+Even though I didn't have quakes saved as an object in Python, we were able to grab that information from R and display it in Python! Amazing!
+

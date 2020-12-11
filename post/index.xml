@@ -19,24 +19,13 @@ I am a researcher, a homebody, a plant collector, and an aspiring farm animal sa
     </item>
     
     <item>
-      <title>Test Post </title>
-      <link>/post/2020/12/03/test-post/</link>
-      <pubDate>Thu, 03 Dec 2020 00:00:00 +0000</pubDate>
+      <title>Python Stuff!</title>
+      <link>/post/2020/12/10/python-stuff/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
       
-      <guid>/post/2020/12/03/test-post/</guid>
-      <description> Heading Content etc
-quakes&amp;lt;- quakes r.quakes.mag.mean() ## 4.6204000000000001   </description>
-    </item>
-    
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+      <guid>/post/2020/12/10/python-stuff/</guid>
+      <description>So.. Coding, Huh. Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today&#39;s technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It&#39;s not so scary; here&#39;s a simple Python code chunk:
+print(&amp;quot;When the robots take over, we&amp;#39;ll have to learn their language!</description>
     </item>
     
   </channel>

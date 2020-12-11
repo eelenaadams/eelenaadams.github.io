@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Elena Adams" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Python Stuff!</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/2020/12/10/python-stuff/">Python Stuff!</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         December 10, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="so..-coding-huh." class="section level2">
+<h2>So.. Coding, Huh.</h2>
+<p>Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today's technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It's not so scary; here's a simple Python code chunk:</p>
+<pre class="python"><code>print(&quot;When the robots take over, we&#39;ll have to learn their language!&quot;)</code></pre>
+<pre><code>## When the robots take over, we&#39;ll have to learn their language!</code></pre>
+<p>R and Python are two very common coding languages for data sciences. Some prefer one or the other, but the truth is they both have different strengths and weaknesses; and both are a useful tool in your statistics and data sciences toolbox.</p>
+<p>Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually &quot;communicate&quot; with each other through a feature called Reticulate... here, I'll show you!</p>
+</div>
+<div id="reticulate" class="section level2">
+<h2>Reticulate</h2>
+<pre class="r"><code>#R code chunk
+
+library(reticulate)
+quakes&lt;- quakes</code></pre>
+<pre class="python"><code>#Python code chunk
+
+r.quakes.head()</code></pre>
+<pre><code>##      lat    long  depth  mag  stations
+## 0 -20.42  181.62    562  4.8        41
+## 1 -20.62  181.03    650  4.2        15
+## 2 -26.00  184.10     42  5.4        43
+## 3 -17.97  181.66    626  4.1        19
+## 4 -20.42  181.96    649  4.0        11</code></pre>
+<pre class="python"><code>r.quakes.describe()</code></pre>
+<pre><code>##                lat         long        depth          mag     stations
+## count  1000.000000  1000.000000  1000.000000  1000.000000  1000.000000
+## mean    -20.642750   179.462020   311.371000     4.620400    33.418000
+## std       5.028791     6.069497   215.535498     0.402773    21.900386
+## min     -38.590000   165.670000    40.000000     4.000000    10.000000
+## 25%     -23.470000   179.620000    99.000000     4.300000    18.000000
+## 50%     -20.300000   181.410000   247.000000     4.600000    27.000000
+## 75%     -17.637500   183.200000   543.000000     4.900000    42.000000
+## max     -10.720000   188.130000   680.000000     6.400000   132.000000</code></pre>
+<p>Even though I didn't have quakes saved as an object in Python, we were able to grab that information from R and display it in Python! Amazing!</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

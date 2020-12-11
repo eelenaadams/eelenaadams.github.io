@@ -19,13 +19,13 @@ I am a researcher, a homebody, a plant collector, and an aspiring farm animal sa
     </item>
     
     <item>
-      <title>Test Post </title>
-      <link>/post/2020/12/03/test-post/</link>
-      <pubDate>Thu, 03 Dec 2020 00:00:00 +0000</pubDate>
+      <title>Python Stuff!</title>
+      <link>/post/2020/12/10/python-stuff/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
       
-      <guid>/post/2020/12/03/test-post/</guid>
-      <description> Heading Content etc
-quakes&amp;lt;- quakes r.quakes.mag.mean() ## 4.6204000000000001   </description>
+      <guid>/post/2020/12/10/python-stuff/</guid>
+      <description>So.. Coding, Huh. Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today&#39;s technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It&#39;s not so scary; here&#39;s a simple Python code chunk:
+print(&amp;quot;When the robots take over, we&amp;#39;ll have to learn their language!</description>
     </item>
     
     <item>
@@ -45,17 +45,6 @@ quakes&amp;lt;- quakes r.quakes.mag.mean() ## 4.6204000000000001   </description
       <guid>/project/project1/</guid>
       <description>My Project My project will use data from quadrat surveys of plant cover on Mt St. Helens from 1995 to 2009. I will join a dataset with quadrat cover information (richness, diversity, etc) with a dataset containing plot descriptors (coordinates, succession type, etc), joined by Plot ID.
 library(tidyverse)  Loading in the data structure &amp;lt;- read.csv(&amp;quot;MSH_STRUCTURE_PLOT_YEAR.csv&amp;quot;) descriptors &amp;lt;- read.csv(&amp;quot;MSH_PLOT_DESCRIPTORS.csv&amp;quot;)  Fixing and Tidying structure_final &amp;lt;- structure %&amp;gt;% unite(&amp;quot;PLOT_CODE&amp;quot;, 2:3) descriptors_final &amp;lt;- descriptors %&amp;gt;% separate(PLOT_CODE, into = c(&amp;quot;PLOT_NAME&amp;quot;, &amp;quot;PLOT_NUM BER&amp;quot;), sep = 4, convert = T) %&amp;gt;% structure %&amp;gt;% unite(&amp;quot;PLOT_CODE&amp;quot;, 2:3) %&amp;gt;% separate(IMPACT_TYPE, into = c(&amp;quot;IMPACT_TYPE_1&amp;quot;, &amp;quot;IMPACT_TYPE_2&amp;quot;, &amp;quot;IMPACT_TYPE_3&amp;quot;), sep = &amp;quot;;&amp;quot;, convert = T) structure_final &amp;lt;- structure_final %&amp;gt;% group_by(PLOT_CODE) %&amp;gt;% slice(1) structure_final &amp;lt;- structure_final %&amp;gt;% subset(PLOT_CODE !</description>
-    </item>
-    
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
     </item>
     
     <item>
