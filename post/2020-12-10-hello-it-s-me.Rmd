@@ -1,0 +1,21 @@
+---
+title: Hello, It's Me!
+author: 'Elena '
+date: '2020-12-10'
+slug: hello-it-s-me
+categories: []
+tags: []
+description: ''
+---
+
+
+Hello, it's me: Elena!
+
+I am a third year biology student at UT Austin studying ecology, evolution, and animal behavior, with a certificate in applied statistical modeling. I am interested in nearly every aspect of biology, but my true passion is for ecology, specifically urban ecology.
+
+I am a researcher, a homebody, a plant collector, and an aspiring farm animal sanctuary owner (ok maybe not but one can dream, right?)
+
+My current research is focused on behavior in Poeciliid fishes; specifically, Xiphophorous nigrensis, the northern swordtail. I am currently working on a project to determine cognitive and behavioral differences arising in females raised in different social environments. Animal minds are so cool! 
+
+This is my website, please see my resume and projects if you'd like!
+
