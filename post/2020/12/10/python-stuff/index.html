@@ -7,7 +7,7 @@
     <meta name="author" content="Elena Adams" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>Python Stuff!</title>
+    <title>Coding in Python and R</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2020/12/10/python-stuff/">Python Stuff!</a></strong>
+            <strong><a href="../../../../../post/2020/12/10/python-stuff/">Coding in Python and R</a></strong>
           </h3>
         </div>
  
@@ -72,16 +72,35 @@
               
 
 
-<div id="so..-coding-huh." class="section level2">
-<h2>So.. Coding, Huh.</h2>
+<div class="figure">
+<img src="../../../../../post/2020-12-10-python-stuff_files/python" alt="A python. That&#39;s what we&#39;re talking about, right?" style="width:100.0%" style="height:100.0%" />
+<p class="caption">A python. That's what we're talking about, right?</p>
+</div>
+<div id="so...-coding-huh." class="section level2">
+<h2>So... Coding, Huh.</h2>
 <p>Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today's technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It's not so scary; here's a simple Python code chunk:</p>
 <pre class="python"><code>print(&quot;When the robots take over, we&#39;ll have to learn their language!&quot;)</code></pre>
 <pre><code>## When the robots take over, we&#39;ll have to learn their language!</code></pre>
 <p>R and Python are two very common coding languages for data sciences. Some prefer one or the other, but the truth is they both have different strengths and weaknesses; and both are a useful tool in your statistics and data sciences toolbox.</p>
-<p>Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually &quot;communicate&quot; with each other through a feature called Reticulate... here, I'll show you!</p>
+<p>It may be simple, but one of my favorite things to do in R is data visualization. Here I'll display a scatterplot of total sleep by total REM sleep in mammals, with diet displayed by dot color and bodyweight displayed by dot size.</p>
+<pre class="r"><code>library(ggplot2)
+ggplot(msleep, aes(sleep_total, sleep_rem))+
+  geom_point(aes(color=vore, size=bodywt))</code></pre>
+<pre><code>## Warning: Removed 22 rows containing missing values (geom_point).</code></pre>
+<p><img src="../../../../../post/2020-12-10-python-stuff_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Cool, right? In python, you can use something interesting called &quot;regex&quot; (regular expressions). It helps you find strings of characters within a large amount of text. Here I'll have it pull all instances of &quot;a&quot; plus any other one character from this string:</p>
+<pre class="python"><code>import re
+import numpy as np
+import pandas as pd
+
+x=&quot;abc aac ac acb bac a&quot;
+
+re.findall(r&quot;a.&quot;,x) </code></pre>
+<pre><code>## [&#39;ab&#39;, &#39;aa&#39;, &#39;ac&#39;, &#39;ac&#39;, &#39;ac&#39;]</code></pre>
 </div>
 <div id="reticulate" class="section level2">
 <h2>Reticulate</h2>
+<p>Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually &quot;communicate&quot; with each other through a feature called Reticulate... here, I'll show you!</p>
 <pre class="r"><code>#R code chunk
 
 library(reticulate)
@@ -106,7 +125,7 @@ r.quakes.head()</code></pre>
 ## 75%     -17.637500   183.200000   543.000000     4.900000    42.000000
 ## max     -10.720000   188.130000   680.000000     6.400000   132.000000</code></pre>
 <p>Even though I didn't have quakes saved as an object in Python, we were able to grab that information from R and display it in Python! Amazing!</p>
-<p>Happy coding!</p>
+<p>So, now that we see it isn't 100% terrible, I hope you'll take some time to learn the basics of Python or R as well. Happy coding!</p>
 </div>
 
             

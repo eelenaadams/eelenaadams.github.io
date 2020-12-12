@@ -1,5 +1,5 @@
 ---
-title: Python Stuff!
+title: Coding in Python and R
 author: 'Elena '
 date: '2020-12-10'
 slug: python-stuff
@@ -8,7 +8,9 @@ tags: []
 description: ''
 ---
 
-##So.. Coding, Huh.
+![A python. That's what we're talking about, right?](/post/2020-12-10-python-stuff_files/python){width=100% height=100%}
+
+##So... Coding, Huh.
 
 Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today's technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It's not so scary; here's a simple Python code chunk:
 
@@ -18,13 +20,30 @@ print("When the robots take over, we'll have to learn their language!")
 
 R and Python are two very common coding languages for data sciences. Some prefer one or the other, but the truth is they both have different strengths and weaknesses; and both are a useful tool in your statistics and data sciences toolbox. 
 
+It may be simple, but one of my favorite things to do in R is data visualization. Here I'll display a scatterplot of total sleep by total REM sleep in mammals, with diet displayed by dot color and bodyweight displayed by dot size.
 
-Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually "communicate" with each other through a feature called Reticulate... here, I'll show you!
+```{R}
+library(ggplot2)
+ggplot(msleep, aes(sleep_total, sleep_rem))+
+  geom_point(aes(color=vore, size=bodywt))
+```
+
+Cool, right? In python, you can use something interesting called "regex" (regular expressions). It helps you find strings of characters within a large amount of text. Here I'll have it pull all instances of "a" plus any other one character from this string:
+
+```{python}
+import re
+import numpy as np
+import pandas as pd
+
+x="abc aac ac acb bac a"
+
+re.findall(r"a.",x) 
+``` 
 
 
 ## Reticulate
 
-
+Here, I'll demonstrate some cross-curricular coding, so to speak! R and Python can actually "communicate" with each other through a feature called Reticulate... here, I'll show you!
 ```{r}
 #R code chunk
 
@@ -43,6 +62,6 @@ r.quakes.describe()
 
 Even though I didn't have quakes saved as an object in Python, we were able to grab that information from R and display it in Python! Amazing!
 
-Happy coding!
+So, now that we see it isn't 100% terrible, I hope you'll take some time to learn the basics of Python or R as well. Happy coding!
 
 

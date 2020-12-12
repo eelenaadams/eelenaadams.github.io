@@ -19,6 +19,16 @@ The best thing I ever did for myself was apply to the FRI (Freshman Research Ini
     </item>
     
     <item>
+      <title>Coding in Python and R</title>
+      <link>/post/2020/12/10/python-stuff/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/10/python-stuff/</guid>
+      <description>A python. That&#39;s what we&#39;re talking about, right?
+ So... Coding, Huh. Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today&#39;s technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It&#39;s not so scary; here&#39;s a simple Python code chunk:</description>
+    </item>
+    
+    <item>
       <title>Hello, It&#39;s Me!</title>
       <link>/post/2020/12/10/hello-it-s-me/</link>
       <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
@@ -26,16 +36,6 @@ The best thing I ever did for myself was apply to the FRI (Freshman Research Ini
       <guid>/post/2020/12/10/hello-it-s-me/</guid>
       <description>Hello, it&#39;s me: Elena! I am a third year biology student at UT Austin studying ecology, evolution, and animal behavior, with a certificate in applied statistical modeling. I am interested in nearly every aspect of biology, but my true passion is for ecology, specifically urban ecology.
 I am a researcher, a homebody, a plant collector, and an aspiring animal sanctuary owner (ok maybe not but one can dream, right?</description>
-    </item>
-    
-    <item>
-      <title>Python Stuff!</title>
-      <link>/post/2020/12/10/python-stuff/</link>
-      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/post/2020/12/10/python-stuff/</guid>
-      <description>So.. Coding, Huh. Coding is hard. Truly, it is. However! Learning how to program, even just the basics, is an essential tool for many (all?) in today&#39;s technologically saturated world. For researchers and scientists of any capacity it is an incredibly necessary and useful tool to explore, manipulate, and make sense of your data. It&#39;s not so scary; here&#39;s a simple Python code chunk:
-print(&amp;quot;When the robots take over, we&amp;#39;ll have to learn their language!</description>
     </item>
     
   </channel>
