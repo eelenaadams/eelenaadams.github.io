@@ -7,15 +7,15 @@ categories: []
 tags: []
 description: ''
 ---
+![](/post/2020-12-10-hello-it-s-me_files/Wyoming.jpg){width=50% height=50%}
 
-
-Hello, it's me: Elena!
+##Hello, it's me: Elena!
 
 I am a third year biology student at UT Austin studying ecology, evolution, and animal behavior, with a certificate in applied statistical modeling. I am interested in nearly every aspect of biology, but my true passion is for ecology, specifically urban ecology.
 
-I am a researcher, a homebody, a plant collector, and an aspiring farm animal sanctuary owner (ok maybe not but one can dream, right?)
+I am a researcher, a homebody, a plant collector, and an aspiring animal sanctuary owner (ok maybe not but one can dream, right?)
 
 My current research is focused on behavior in Poeciliid fishes; specifically, Xiphophorous nigrensis, the northern swordtail. I am currently working on a project to determine cognitive and behavioral differences arising in females raised in different social environments. Animal minds are so cool! 
 
-This is my website, please see my resume and projects if you'd like!
+Please see my resume, projects, and other blog posts for more info!
 

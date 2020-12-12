@@ -1,0 +1,59 @@
+---
+title: My Research Journey
+author: 'Elena '
+date: '2020-12-11'
+slug: my-research
+categories: []
+tags: []
+description: ''
+---
+
+![What the fish sees in between trials](/post/2020-12-11-my-research_files/fish.JPG){width=50% height=50%}
+
+##How it Started
+
+I came to UT Austin with a very murky idea of what I wanted to do in life, only a love for biology and a passion for environmenatl issues. 
+
+The best thing I ever did for myself was apply to the FRI (Freshman Research Initiative) the summer before my first semester. Joining the Fish Behavior stream and participating in real research with a lab on campus changed the course of my life-- for the better, of course!
+
+That first semester after joining the Fish Behavior stream I was introduced to current research and literature in fish behavior and cognition, the fascinating biology and evolution of Poeciliids, experimental design and execution, and even some data analysis in R. I was hooked through and through. That spring I applied and was accepted for a summer fellowship to work on my own project in the lab, and at that point I knew this was the beginning my future career.
+
+![The experimental tanks](/post/2020-12-11-my-research_files/Fish room pic.JPG){width=50% height=50%}
+
+##How it's Going
+
+Now, as a junior, I have completed two funded fellowships with the Cummings Lab, a semester of mentoring new FRI students, and countless hours collecting data, doing fish husbandry, and even a little bit of data analysis. 
+
+I have exerienced the utter confusion of doing research during a pandemic. I was lucky enough to be able to complete my data collection over the summer of 2020 in a safe and controlled manner, but I know many scientists were not so lucky; the amount of research halted and data lost due to COVID19 has been absolutely devastating, on top of the overall mishandling and tremendous loss of life that has loomed over this year.
+
+With the data I collected over the summer, my hope is to work towards publication over the next year or two. A goal I didn't even know I had until a year ago, now all I can think about is becoming a published author and kickstarting a hopefully long and fruitful career in research. I am lucky to have such a wonderful and encouraging mentor in Dr. Molly Cummings, I would not be the confidant, passionate young scientist I am without her enthusiasm and guidance.
+
+![A large swordtail male](/post/2020-12-11-my-research_files/IMG_5820.jpg){width=50% height=50%}
+
+##My Current Research
+
+So! What is it I do again?
+
+Well, let's back up a bit. Up until the mid 90s, few scientists were willing to assign the term "cognition" to animal behavior; scientists just weren't willing to consider the fact that animals have a conscious awareness of their own thoughts and actions (that they aren't "unconscious actors"). 
+
+In truth, it's evident that many animals perform complex tasks, learn from their experiences, and,  in some cases, learn from OTHER individuals experiences. Although it is very difficult to empirically prove (how do you quantify the thoughts in another being's brain?), it is generally understood now that we can at least assume some form of cognition must be taking place.
+
+So, what is it I do? I am interested in deepening our understanding of fish behavior and cognition! Fish are a LOT smarter than the average person gives them credit for. In my lab, we have demonstrated that swordtails, a close relative of the guppy, are able to complete some pretty complex tasks; maze solving, distinguishing quantities of objects, and even solving   spatio-temporal patterns. Amazing! These fish are intelligent, adaptable, and crafty to boot.
+
+An ongoing project in the Cummings Lab involves raising females in different social environments, specifically, different male mating pressures. There's a lot going on here, but the short of it is that our test species, Xiphophorus nigrensis, has three distinct male phenotypes which each exhibit a different mating strategies. Large males court the females, small males coerce them, and intermediate males do a little bit of both. This system represents a lot of very interesting questions concerning sexual conflict and the evolutionary arms race that may ensue. This is a very complex environment for a female, filled with good actors and bad actors-- how will she adapt to guarantee her fitness is maximized?
+
+The treatments in which different females were raised are as follows:
+
+Large males only
+
+Small males only
+
+Intermediate males only
+
+Large and small males together
+
+
+My project seeks to determine whether females raised in these different social environments differ in their ability or strategy to evade a small, coercive male. It will be interesting to see whether these abilities differ significantly across treatments. If they don't, this may suggest that the instinct and ability to evade a coercive male may be genetic and mostly static. However, if they do show differences, this may suggest that evasion and other fitness maximizing tactics may be learned behaviors; accrued over time as females learn from their experiences. What is the true cognitive power of these females?
+
+
+
